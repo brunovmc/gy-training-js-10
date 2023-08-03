@@ -11,26 +11,28 @@ function calculateDailyAggregation(file) {
   fs.createReadStream(file)
     .pipe(csvParser({ separator: ';' }))
     .on('data', (row) => {
-      const date = row.dateTime.split('T')[0];
+      const dateString = row.dateTime.split(' ')[0];
+      const dateParts = dateString.split('/');
+
+      const isoDateString = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+
       const value = parseFloat(row.value);
 
       if (!isNaN(value)) {
-        if (dailyAggregation[date]) {
-          dailyAggregation[date].sum += value;
-          dailyAggregation[date].count++;
+        if (dailyAggregation[isoDateString]) {
+          dailyAggregation[isoDateString].sum += value;
+          dailyAggregation[isoDateString].count++;
         } else {
-          dailyAggregation[date] = { sum: value, count: 1 };
+          dailyAggregation[isoDateString] = { sum: value, count: 1 };
         }
       }
     })
     .on('end', () => {
+      console.log("Daily Aggregation:");
       for (const date in dailyAggregation) {
         dailyAggregation[date].average = dailyAggregation[date].sum / dailyAggregation[date].count;
-        delete dailyAggregation[date].sum;
-        delete dailyAggregation[date].count;
+        console.log(`${date} - Average Value: ${dailyAggregation[date].average.toFixed(2)}`);
       }
-      console.log("Daily Aggregation:");
-      console.log(dailyAggregation);
     });
 }
 
