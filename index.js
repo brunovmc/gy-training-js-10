@@ -16,7 +16,7 @@ function calculateDailyAggregation(file) {
 
       const isoDateString = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
-      const value = parseFloat(row.value);
+      const value = Number(row.value.replace(',', '.'));
 
       if (!isNaN(value)) {
         if (dailyAggregation[isoDateString]) {
